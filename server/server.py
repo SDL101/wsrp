@@ -8,9 +8,16 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, se
 from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
 from flask_wtf.csrf import CSRFProtect # added for CSRF protection in secure endpoints
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize the Flask app
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key')  # fallback to dev key if env var not set
+app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF for development
 jwt = JWTManager(app)
 # Flask JWT Configuration
 app.config['JWT_SECRET_KEY'] = 'secret_key' # change this and save in .env file
@@ -24,8 +31,14 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 # CSRF global protection 
 csrf = CSRFProtect(app)
 
-# Enable Cross-Origin Resource Sharing to allow requests from different domains
-CORS(app)
+# Configure CORS
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["http://localhost:5173"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 # Database configuration
 # Note: It's a security best practice to store these in a .env file and not hard-code credentials
@@ -169,60 +182,77 @@ def login_sqli_vuln():
 
 
 # Define a route to create a new user
-@app.route('/api/auth/register', methods=['POST'])
+@app.route('/api/auth/register', methods=['POST', 'OPTIONS'])
 def register():
-    """
-    Handles user registration.
-    Note: Uses insecure practices such as plain-text password storage and SQL 
-    injection vulnerability.
-    """
-    # Parse JSON data from the request body
-    data = request.get_json()
-    user_name = data.get("user_name")
-    password = data.get("password")
-    first_name = data.get("first_name")
-    last_name = data.get("last_name")
-    email = data.get("email")
-    user_type = data.get("user_type")
+    if request.method == 'OPTIONS':
+        response = jsonify({'message': 'OK'})
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST,OPTIONS')
+        return response, 200
+        
+    try:
+        print("\n=== Registration Request ===")
+        print("Content-Type:", request.headers.get('Content-Type'))
+        
+        raw_data = request.get_data().decode('utf-8')
+        print("Raw request data:", raw_data)
+        
+        data = request.get_json()
+        print("Parsed JSON data:", data)
+        
+        required_fields = ['user_name', 'password', 'first_name', 'last_name', 'email', 'user_type']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            print(f"Missing required fields: {missing_fields}")
+            return jsonify({
+                "message": f"Missing required fields: {missing_fields}",
+                "status_code": 400
+            }), 400
 
-    # strip any unallowed characters
-    user_name = user_name.strip("';#$%&*()_+=@/\\|~`")
-    password = password.strip("';#$%&*()_+=@/\\|~`")
-    first_name = first_name.strip("';#$%&*()_+=@/\\|~`")
-    last_name = last_name.strip("';#$%&*()_+=@/\\|~`")
-    email = email.strip("';#$%&*()_+=@/\\|~`")
+        try:
+            # Check if username already exists
+            query_1 = text("SELECT * FROM users WHERE user_name = :username")
+            with db.engine.begin() as connection:
+                result = connection.execute(query_1, {"username": data["user_name"]}).fetchall()
+                if len(result) > 0:
+                    return jsonify({"message": "User already exists", "status_code": 401}), 401
 
-    query_1 = text("SELECT * FROM users WHERE user_name = '" + user_name + "';")
-    with db.engine.begin() as connection:
-        result = connection.execute(query_1).fetchall()  # Fetch all matching rows
+                # Check if email already exists
+                query_2 = text("SELECT * FROM users WHERE email = :email")
+                result = connection.execute(query_2, {"email": data["email"]}).fetchall()
+                if len(result) > 0:
+                    return jsonify({"message": "Email already exists", "status_code": 401}), 401
 
-        # Check if the user already exists
-        if len(result) > 0:
-            body = {"message": "User already exists",
-                    "status_code": 401, 
-                    "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
-
-        # Check if the email already exists
-        query_2 = text("SELECT * FROM users WHERE email = '" + email + "';")
-        result = connection.execute(query_2).fetchall()  # Fetch all matching rows
-        if len(result) > 0:
-            body = {"message": "Email already exists",
-                    "status_code": 401, 
-                    "result": [row._asdict() for row in result]}
-            return jsonify(body), 401
-
-        # Insert the new user into the 'users' table
-        query_3 = text("INSERT INTO users \
-                       (user_name, password, first_name, last_name, email, user_type) \
-                       VALUES \
-                       ('" + user_name + "', '" + password + "', '" + first_name + "', '" + last_name + "', '" + email + "', '" + user_type + "');")
-        connection.execute(query_3)  # Execute the query
-        body = {
-            "message": "User created successfully",
-            "status_code": 200
-        }
-        return jsonify(body), 200
+                # Insert new user
+                query_3 = text("""
+                    INSERT INTO users (user_name, password, first_name, last_name, email, user_type)
+                    VALUES (:username, :password, :firstname, :lastname, :email, :usertype)
+                """)
+                connection.execute(query_3, {
+                    "username": data["user_name"],
+                    "password": data["password"],
+                    "firstname": data["first_name"],
+                    "lastname": data["last_name"],
+                    "email": data["email"],
+                    "usertype": data["user_type"]
+                })
+                return jsonify({"message": "User created successfully", "status_code": 200}), 200
+                
+        except Exception as db_error:
+            print(f"Database error: {str(db_error)}")
+            return jsonify({
+                "message": f"Database error: {str(db_error)}",
+                "status_code": 500
+            }), 500
+            
+    except Exception as e:
+        print(f"Registration error: {str(e)}")
+        return jsonify({
+            "message": f"Registration error: {str(e)}",
+            "status_code": 500
+        }), 500
 
 @app.route('/api/auth/logout', methods=['POST'])
 @jwt_required() 

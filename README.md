@@ -4,7 +4,7 @@
 The first steps to get the project running are to create a **virtual environment**.
 
 #### **1️⃣ Install VirtualBox**
-[Oracle VirtualBox](https://www.virtualbox.org/) is a free tool that lets you run **virtual machines (VMs)** on your computer. You’ll need it to create a separate, controlled environment for this project.
+[Oracle VirtualBox](https://www.virtualbox.org/) is a free tool that lets you run **virtual machines (VMs)** on your computer. You'll need it to create a separate, controlled environment for this project.
 
 1. Download and install **VirtualBox** from:  
    🔗 [https://www.virtualbox.org/](https://www.virtualbox.org/)
@@ -121,3 +121,15 @@ The first feature that is "testable" is SQL injection. Open a web browser and na
 Enter anything for the Password field. Before clicking "Login", open the web browser console (On Firefox, right-click > "Inspect"). After submitting the login form you will not be directed anywhere, but in the console you will see a list of all of the users in the database.
 
 When you switch to the "sql_injection_secure" branch and run the application (using the same steps from above) you will not be able to run this specific attack. 
+
+## Setup
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cd server
+   cp .env.example .env
+   ```
+2. Generate a secret key:
+   ```python
+   python -c "import secrets; print(secrets.token_hex(16))"
+   ```
+3. Update `.env` with your generated secret key

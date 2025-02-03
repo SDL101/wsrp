@@ -36,3 +36,4 @@ wsrp_vue/.vscode/*
 
 .editorconfig
 
+.env

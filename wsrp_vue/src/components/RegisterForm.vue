@@ -1,20 +1,127 @@
-<script setup></script>
+<script setup>
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const formData = ref({
+  user_name: "",
+  password: "",
+  confirm_password: "",
+  first_name: "",
+  last_name: "",
+  email: "",
+  user_type: "CUSTOMER",
+});
+
+const handleRegister = async (event) => {
+  event.preventDefault();
+
+  const registrationData = {
+    user_name: formData.value.user_name,
+    password: formData.value.password,
+    first_name: formData.value.first_name,
+    last_name: formData.value.last_name,
+    email: formData.value.email,
+    user_type: formData.value.user_type,
+  };
+
+  // Log the exact data being sent
+  console.log("Form values:", formData.value);
+  console.log("Registration data:", registrationData);
+  console.log("Stringified data:", JSON.stringify(registrationData));
+
+  if (formData.value.password !== formData.value.confirm_password) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://127.0.0.1:5000/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(registrationData),
+    });
+
+    const responseText = await response.text();
+    console.log("Response status:", response.status);
+    console.log("Raw response:", responseText);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = JSON.parse(responseText);
+
+    if (response.ok) {
+      alert("Registration successful!");
+      router.push("/login");
+    } else {
+      alert(`Registration failed: ${data.message}`);
+    }
+  } catch (error) {
+    console.error("Error during registration:", error);
+    alert("Registration failed. Please try again.");
+  }
+};
+</script>
 
 <template>
   <div class="item">
     <div class="details">
       <h3>Register</h3>
-      <form>
+      <form @submit="handleRegister">
         <label for="username">Username</label>
-        <input v-model="user_name" type="text" placeholder="Username" />
+        <input
+          v-model="formData.user_name"
+          type="text"
+          placeholder="Username"
+          required
+        />
+
         <label for="password">Password</label>
-        <input v-model="password" type="password" placeholder="Password" />
+        <input
+          v-model="formData.password"
+          type="password"
+          placeholder="Password"
+          required
+        />
+
         <label for="confirm-password">Confirm Password</label>
         <input
-          v-model="confirm_password"
+          v-model="formData.confirm_password"
           type="password"
           placeholder="Confirm Password"
+          required
         />
+
+        <label for="first-name">First Name</label>
+        <input
+          v-model="formData.first_name"
+          type="text"
+          placeholder="First Name"
+          required
+        />
+
+        <label for="last-name">Last Name</label>
+        <input
+          v-model="formData.last_name"
+          type="text"
+          placeholder="Last Name"
+          required
+        />
+
+        <label for="email">Email</label>
+        <input
+          v-model="formData.email"
+          type="email"
+          placeholder="Email"
+          required
+        />
+
         <button id="register" type="submit">Register</button>
 
         <p>
