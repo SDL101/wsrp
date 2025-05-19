@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useRouter } from 'vue-router';
+import AccountsList from './AccountsList.vue';
 
 const props = defineProps({
   userProfile: {
@@ -9,10 +11,7 @@ const props = defineProps({
 });
 console.log(props.userProfile.user.user_name);
 
-// parse the user_name from the current jwt token
-// this might be an "insecure" way of getting current sessio info
-// const decodedToken = jwtDecode(localStorage.getItem("access_token"));
-// const user_name = decodedToken.sub;
+const router = useRouter();
 
 // Data will be loaded into object that includes the list of transactions, response message and response code
 const transactionsLoading = ref(true); // Loading state for transactions
@@ -65,8 +64,23 @@ const fetchAccounts = async () => {
   }
 };
 
+const handleNewAccount = () => {
+  router.push({ 
+    path: '/new-account',
+    query: { 
+      user_name: props.userProfile.user.user_name,
+      user_id: props.userProfile.user.user_id
+    }
+  });
+};
+
 onMounted(async () => {
   fetchTransactions(), fetchAccounts();
+  // Add event listener for new account button
+  const newAccountButton = document.querySelector('.action-button[data-action="new-account"]');
+  if (newAccountButton) {
+    newAccountButton.addEventListener('click', handleNewAccount);
+  }
 });
 
 // Add new computed properties for summary data
@@ -140,7 +154,7 @@ const recentTransactions = computed(() => {
           <button class="action-button">
             <i class="fas fa-exchange-alt"></i> Transfer
           </button>
-          <button class="action-button">
+          <button class="action-button" data-action="new-account" @click="handleNewAccount">
             <i class="fas fa-plus"></i> New Account
           </button>
           <button class="action-button">

@@ -313,11 +313,11 @@ def create_account():
             if result:
                 user_type = result.user_type
 
-    # Set initial_balance to 0 if customer
+    # Set initial_balance based on user type
+    initial_balance = float(data.get("initial_balance", 0.00))
     if user_type == "CUSTOMER":
-        initial_balance = float(data.get("initial_balance", 0.00))
-    else:
-        initial_balance = 0.00
+        initial_balance = 0.00  # Force 0 for customers
+    # For admin users, use the provided initial_balance
 
     account_number = f"{random.randint(1000, 9999)}-{random.randint(1000, 9999)}" # TODO validate num doesn't exist
     
@@ -327,6 +327,7 @@ def create_account():
             query1 = text("""
                 INSERT INTO accounts (account_number, account_type, account_balance, account_interest_rate)
                 VALUES (:account_number, :account_type, :initial_balance, :interest_rate)
+                RETURNING account_id
             """)
             
             # Set interest rate based on account type
@@ -343,9 +344,8 @@ def create_account():
                 'interest_rate': interest_rate
             })
             
-            # Get the new account_id
-            query2 = text("SELECT LAST_INSERT_ID() as account_id")
-            account_id = connection.execute(query2).fetchone().account_id
+            # Get the new account_id from the RETURNING clause
+            account_id = result.fetchone().account_id
             
             # If customer (username provided), link account to user through user_accounts
             if user_name:
