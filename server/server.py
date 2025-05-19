@@ -713,6 +713,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/api/upload', methods=['POST'])
+@csrf.exempt
 def upload_file():
     if 'file' not in request.files:
         return jsonify({'message': 'No file part'}), 400
