@@ -727,6 +727,7 @@ def upload_file():
     return jsonify({'message': 'Invalid file type'}), 400
 
 @app.route('/api/vuln/upload', methods=['POST'])
+@csrf.exempt
 def vuln_upload_file():
     print("Request.files:", request.files)
     if 'file' not in request.files:
