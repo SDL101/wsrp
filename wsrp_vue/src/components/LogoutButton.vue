@@ -1,31 +1,18 @@
 <script setup>
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import {useRouter } from 'vue-router'
 
 const router = useRouter();
 
-const logout = async () => {
-    try {
-        // Call backend logout to clear cookies (with credentials)
-        await fetch(`${import.meta.env.VITE_API_URL}/api/auth/logout`, {
-            method: 'POST',
-            credentials: 'include', // important for cookies
-        });
-    } catch {
-        // Ignore errors, still clear local token
-    }
-    localStorage.removeItem('access_token');
-    router.push('/');
-    setTimeout(() => window.location.reload(), 100); // Force UI update
-};
-
 onMounted(() => {
     const logoutButton = document.getElementById('logout');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', logout);
-    }
-});
+    logoutButton.addEventListener('click', () => {
+        localStorage.removeItem('access_token');
+        router.push('/');
+    })
+})
 </script>
+
 
 <template>
     <button class="nav-link logout-btn" id="logout" type="button">Log out</button>

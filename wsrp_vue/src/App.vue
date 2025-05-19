@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted } from 'vue';
-import NavBar from './components/NavBar.vue';
 
 onMounted(() => {
 	// Ping the backend to keep it warm
@@ -9,6 +8,5 @@ onMounted(() => {
 </script>
 
 <template>
-	<NavBar />
 	<router-view/>
 </template>
