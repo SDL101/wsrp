@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
+
+const isIdorVulnerable = ref(false);
 
 const props = defineProps({
   userProfile: {
@@ -12,11 +15,19 @@ const props = defineProps({
 const router = useRouter();
 const accountType = ref('CHECKING');
 const initialBalance = ref(0);
+const userName = ref(props.userProfile.user_name);
 const error = ref('');
+
+// load the pinia store so we can access state variables
+const vulnerabilityStore = useVulnerabilityStore();
+
+if (vulnerabilityStore.getIdorVulnerable() === true) {
+  isIdorVulnerable.value = true;
+}
 
 async function createAccount(event) {
   event.preventDefault();
-  
+
   const options = {
     method: 'POST',
     headers: {
@@ -28,7 +39,7 @@ async function createAccount(event) {
     body: JSON.stringify({
       account_type: accountType.value,
       initial_balance: parseFloat(initialBalance.value),
-      user_name: props.userProfile.user.user_name // ONLY included for customer dashboard
+      user_name: userName.value // ONLY included for customer dashboard
     }),
   };
 
@@ -55,6 +66,18 @@ async function createAccount(event) {
     </div>
 
     <form @submit="createAccount">
+      <div 
+        v-if="isIdorVulnerable"
+        class="form-group">
+        <label for="userName">user_name</label>
+        <input
+          v-model="userName"
+          type="text"
+          id="userName"
+          required
+        />
+      </div>
+
       <div class="form-group">
         <label for="accountType">Account Type</label>
         <select v-model="accountType" id="accountType" required>
