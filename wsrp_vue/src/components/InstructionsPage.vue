@@ -15,11 +15,12 @@
         <ol>
           <li>In the navbar, open <strong>Vulnerabilities</strong> and toggle <strong>SQL Injection</strong> to <span style="color: red;">Vulnerable</span>.</li>
           <li>Go to the <strong>Login</strong> page.</li>
-          <li>In the username field, enter a payload such as <code>' OR '1'='1</code> or <code>admin' --</code>.</li>
+          <li>In the username field, enter a payload such as <code>' OR '1'='1</code>.</li>
           <li>Enter any password and click <strong>Login</strong>.</li>
-          <li>If the app is vulnerable, you will be logged in or see data you shouldn't have access to.</li>
+          <li>If the app is vulnerable, we will show you the data that is "accidentally" returned by the server and database.</li>
         </ol>
         <p><strong>Why is this dangerous?</strong> Attackers can bypass authentication, steal data, or even destroy the database.</p>
+        <p>This is a somewhat contrived example, but it shows how SQLi can be used to bypass authentication. Attackers could also directly manipulate server requests, without relying on a form on the front end to inject a such a payload.</p>
       </div>
     </section>
 
@@ -101,10 +102,12 @@
       <div v-if="open.idor" class="section-content">
         <p><strong>What is it?</strong> IDOR lets attackers access or modify data belonging to other users by manipulating references (like IDs) in requests.</p>
         <ol>
+          <li>Log in as a customer. Try user "jsmith", with password "easierpass"</li>
           <li>Toggle <strong>IDOR</strong> to <span style="color: red;">Vulnerable</span> in the navbar.</li>
-          <li>Log in as a user and note your account/user ID (visible in the dashboard or profile).</li>
-          <li>Use browser dev tools to modify a request (e.g., change the <code>user_id</code> or <code>account_id</code> in a URL or request body) to another user's ID.</li>
-          <li>If the app is vulnerable, you will see or modify data that does not belong to you.</li>
+          <li>From the dashboard, click on "New Account" to create a new account. Note that the user_name field is an available to change in the form. Change it to something else, like "mbrown".</li>
+          <li>Choose anything for the "Account Type" field, and maybe choose a memorable initial balance.</li>
+          <li>Submit the form.</li>
+          <li>You won't see the new account under the dashboard for "jsmith", but if you log in as the customer whose user_name you chose (<strong>Hint:</strong> "mbrown", "superpass"), you might see a new account.</li>
         </ol>
         <p><strong>Why is this dangerous?</strong> Attackers can steal or change other users' data by guessing or changing IDs in requests.</p>
       </div>

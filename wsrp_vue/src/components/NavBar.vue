@@ -82,7 +82,13 @@ document.addEventListener('click', (e) => {
         Dashboard
       </router-link>
 
-      <router-link to="/file-upload-demo" class="nav-link">File Upload</router-link>
+      <router-link 
+        v-if="isLoggedIn"
+        to="/file-upload-demo" 
+        class="nav-link"
+      >
+        File Upload
+      </router-link>
 
       <LogoutButton v-if="isLoggedIn" />
     </div>
