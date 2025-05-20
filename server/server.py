@@ -66,9 +66,10 @@ CORS(app, resources={r"/api/*": {
     "supports_credentials": True
 }})
 
+
 # Database configuration
 # Use environment variable for SQLAlchemy database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI') or 'sqlite:///db.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tracking for performance reasons
 
 # Initialize SQLAlchemy with the Flask app
@@ -614,7 +615,7 @@ def login_brute_force_vuln():
             return jsonify(body), 401
 
         # Verify the password (insecure matching)
-        if result[0].password != password:
+        if result[0].password_plaintext != password:
             body = {"message": "Invalid Password",
                     "status_code": 401, 
                     "result": [row._asdict() for row in result]}

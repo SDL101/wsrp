@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Brute Force Test</title>
+</head>
+<body>
+  <h2>Brute Force Test</h2>
+  <button onclick="bruteForceLogin()">Start Brute Force</button>
+  <div id="log-output" style="white-space: pre-wrap; margin-top: 20px;"></div>
+
+  <script>
+    async function loadWordlist(file) {
+      const res = await fetch(file);
+      const lines = await res.text();
+      return lines.trim().split('\n').map(l => l.trim()).filter(Boolean);
+    }
+
+    function logToPage(msg) {
+      const log = document.getElementById('log-output');
+      log.innerText += msg + '\n';
+    }
+
+    async function bruteForceLogin() {
+      const usernames = await loadWordlist('common_usernames.txt');
+      const passwords = await loadWordlist('common_pws.txt');
+      let attempts = 0;
+
+      for (const user of usernames) {
+        for (const pass of passwords) {
+          attempts++;
+
+          const res = await fetch('/api/brute/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_name: user, password: pass })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.access_token) {
+              logToPage(`Success! Username: ${user}, Password: ${pass}`);
+              logToPage(`Total Attempts: ${attempts}`);
+              return;
+            }
+          }
+        }
+      }
+
+      logToPage(`Finished. No valid credentials found after ${attempts} attempts.`);
+    }
+  </script>
+</body>
+</html>
+
