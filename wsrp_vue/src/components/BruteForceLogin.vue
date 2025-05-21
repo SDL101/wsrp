@@ -72,8 +72,6 @@ const login = async () => {
     }),
   };
 
-  requestText.value = options.body;
-
   const response = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, options);
   if (response.ok) {
     const data = await response.json();
@@ -87,9 +85,6 @@ const login = async () => {
     console.error("Login failed");
     // show login error in the form
     loginError.value = true;
-    const responseData = await response.json();
-    scriptText1.value = JSON.stringify(responseData);
-    scrpitContainerVisible.value = true;
   }
 };
 </script>
