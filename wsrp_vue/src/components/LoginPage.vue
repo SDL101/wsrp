@@ -6,6 +6,7 @@ import XSSVulnerableForm from "./XSSVulnerableForm.vue";
 import InstructionsCard from "./InstructionsCard.vue";
 import NavBar from "./NavBar.vue";
 import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
+import BruteForceLogin from "./BruteForceLogin.vue";
 
 const vulnerabilityStore = useVulnerabilityStore();
 </script>
@@ -23,6 +24,7 @@ const vulnerabilityStore = useVulnerabilityStore();
   <main class="login-container">
     <XSSVulnerableForm v-if="vulnerabilityStore.getXssVulnerable()" />
     <SQLVulnerableForm v-else-if="vulnerabilityStore.getSqliVulnerable()" />
+    <BruteForceLogin v-else-if="vulnerabilityStore.getBruteForceVulnerable()" />
     <LoginForm v-else />
   </main>
 </template>
