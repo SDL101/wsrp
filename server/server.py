@@ -69,7 +69,7 @@ CORS(app, resources={r"/api/*": {
 
 # Database configuration
 # Use environment variable for SQLAlchemy database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI') or 'sqlite:///db.sqlite3'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tracking for performance reasons
 
 # Initialize SQLAlchemy with the Flask app
