@@ -72,8 +72,6 @@ const login = async () => {
     }),
   };
 
-//   requestText.value = options.body;
-
   const response = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, options);
   if (response.ok) {
     const data = await response.json();
