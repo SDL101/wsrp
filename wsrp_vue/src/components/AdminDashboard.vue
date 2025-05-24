@@ -74,12 +74,29 @@ const handleNewAccount = () => {
   });
 };
 
+const handleTransfer = () => {
+  router.push({ 
+    path: '/csrf-vulnerable-transfer',
+    query: { 
+      user_name: props.userProfile.user.user_name,
+      user_id: props.userProfile.user.user_id,
+      first_name: props.userProfile.user.first_name,
+      last_name: props.userProfile.user.last_name,
+      user_type: props.userProfile.user.user_type
+    }
+  });
+};
+
 onMounted(async () => {
   fetchTransactions(), fetchAccounts();
   // Add event listener for new account button
   const newAccountButton = document.querySelector('.action-button[data-action="new-account"]');
+  const transferButton = document.querySelector('.action-button[data-action="transfer"]');
   if (newAccountButton) {
     newAccountButton.addEventListener('click', handleNewAccount);
+  }
+  if (transferButton) {
+    transferButton.addEventListener('click', handleTransfer);
   }
 });
 
@@ -151,7 +168,7 @@ const recentTransactions = computed(() => {
         </div>
 
         <div class="quick-actions">
-          <button class="action-button">
+          <button class="action-button" data-action="transfer" @click="handleTransfer">
             <i class="fas fa-exchange-alt"></i> Transfer
           </button>
           <button class="action-button" data-action="new-account" @click="handleNewAccount">

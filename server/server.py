@@ -5,7 +5,7 @@ import re
 from datetime import timedelta
 from flask import Flask, request, jsonify, make_response # Flask for building the web app, request and jsonify for handling HTTP requests and responses
 from flask_sqlalchemy import SQLAlchemy  # SQLAlchemy for database interactions
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies  # JWTManager for handling JSON Web Tokens
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies, get_jwt_identity  # JWTManager for handling JSON Web Tokens
 from flask_cors import CORS  # CORS for handling cross-origin requests
 from sqlalchemy import text  # text allows execution of raw SQL queries
 from flask_wtf.csrf import CSRFProtect # added for GLobal CSRF protection, add "@csrf.exempt" to CSRF insecure endpoints 
@@ -568,7 +568,6 @@ def transfer_money():
 
 # Secure money transfer with CSRF protection 
 @app.route('/api/transfer', methods=['POST'])
-@jwt_required()
 def secure_transfer():
     """
     Secure version of the money transfer API using CSRF tokens and JWT authentication.

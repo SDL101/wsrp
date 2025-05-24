@@ -12,6 +12,8 @@ import HomeScreen from "./components/HomeScreen.vue";
 // import Dashboard from "./components/Dashboard.vue";
 import DashboardLayout from "./layouts/DashboardLayout.vue";
 import NewAccountPage from "./components/NewAccountPage.vue";
+import TransferPage from "./components/TransferPage.vue";
+//import CSRFVulnerableTransferPage from "./components/CSRFVulnerableTransferPage.vue";
 import InstructionsPage from "./components/InstructionsPage.vue";
 import FileUploadDemo from "./components/FileUploadDemo.vue";
 import "./assets/main.css";
@@ -28,6 +30,8 @@ const router = createRouter({
     { path: "/userProfile", component: UserProfile },
     { path: "/dashboard", component: DashboardLayout },
     { path: "/new-account", component: NewAccountPage },
+    { path: "/csrf-vulnerable-transfer", component: TransferPage },
+    //{ path: "/csrf-vulnerable-transfer", component: CSRFVulnerableTransferPage },
     { path: "/instructions", component: InstructionsPage },
     { path: "/file-upload-demo", component: FileUploadDemo },
   ],
