@@ -568,6 +568,7 @@ def transfer_money():
 
 # Secure money transfer with CSRF protection 
 @app.route('/api/transfer', methods=['POST'])
+@csrf.exempt
 def secure_transfer():
     """
     Secure version of the money transfer API using CSRF tokens and JWT authentication.
@@ -576,12 +577,21 @@ def secure_transfer():
     from_account = data.get("from_account")
     to_account = data.get("to_account")
     amount = data.get("amount")
+    import pprint
+    pprint.pp(request.headers)
 
     if not from_account or not to_account or not amount:
         return jsonify({"message": "Invalid data", "status_code": 400}), 400
+    
+    if 'Referer' not in request.headers:
+        return jsonify({"message": "Potential CSRF attack", "status_code": 403}), 403
+    
+    # accept account IDs or account numbers
+    from_col = 'account_number' if '-' in from_account else 'account_id'
+    to_col = 'account_number' if '-' in to_account else 'account_id'
 
-    query = text("UPDATE accounts SET account_balance = account_balance - :amount WHERE account_id = :from_account")
-    query2 = text("UPDATE accounts SET account_balance = account_balance + :amount WHERE account_id = :to_account")
+    query = text(f"UPDATE accounts SET account_balance = account_balance - :amount WHERE {from_col} = :from_account")
+    query2 = text(f"UPDATE accounts SET account_balance = account_balance + :amount WHERE {to_col} = :to_account")
 
     with db.engine.begin() as connection:
         connection.execute(query, {"amount": amount, "from_account": from_account})

@@ -46,6 +46,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useVulnerabilityStore } from "@/stores/vulnerabilityStore";
 
 const props = defineProps({
   userProfile: {
@@ -55,6 +56,7 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const vulnerabilityStore = useVulnerabilityStore();
 const fromAccount = ref('');
 const toAccount = ref('');
 const amount = ref('');
@@ -113,11 +115,17 @@ const submitTransfer = async (event) => {
     return;
   }
 
+  const isVulnerable = vulnerabilityStore.getCsrfVulnerable();
+  const endpoint = isVulnerable
+    ? `${import.meta.env.VITE_API_URL}/api/csrf_vuln/transfer`
+    : `${import.meta.env.VITE_API_URL}/api/transfer`;
+
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/csrf_vuln/transfer`, {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        // TODO If not vulnerable, add an auth token here ?
       },
       body: JSON.stringify({
         from_account: fromAccount.value,

@@ -31,7 +31,6 @@ const router = createRouter({
     { path: "/dashboard", component: DashboardLayout },
     { path: "/new-account", component: NewAccountPage },
     { path: "/csrf-vulnerable-transfer", component: TransferPage },
-    //{ path: "/csrf-vulnerable-transfer", component: CSRFVulnerableTransferPage },
     { path: "/instructions", component: InstructionsPage },
     { path: "/file-upload-demo", component: FileUploadDemo },
   ],
