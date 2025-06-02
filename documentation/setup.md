@@ -89,27 +89,45 @@ cd wsrp
 
 ## 2. Database
 
-Install MySQL:
+These are the steps to install and set up postgresql database in linux environment
 
-`wget https://dev.mysql.com/get/mysql-apt-config_0.8.33-1_all.deb`
+# install postgresql
 
-`sudo dpkg -i mysql-apt-config_0.8.33-1_all.deb`
+`sudo apt install postgresql`
 
-`sudo apt update`
+# open postgresql as the "postgres" user: 
 
-`sudo apt install mysql-server`
+`sudo -u postgres psql`
 
-Choose a memorable password for the root user.
+# You should now have a terminal with a prompt that looks like:
 
-Start MySQL and enter the password you just created:
+`postgres=#`
 
-`mysql -u root -p`
+# Create the database:
 
-Create the database with the script, then exit MySQL:
+`CREATE DATABASE banking_db_v0;`
 
-`source database_setup_v0.sql;`
+# Now, create a user with a password. This username and password will be the one to include later in the .env file 
+
+`create user server_user with encrypted password 'server_pass';`
+
+# Now grant privileges to that user: 
+
+`grant all privileges on database banking_db_v0 to server_user;`
 
 `exit;`
+
+# Now, navigate to the directory that has the file "database_setup_postgres.sql". Enter the following:
+
+psql -h 127.0.0.1 -d banking_db_v0 -U postgres -p 5432 -f database_setup_postgres.sql
+
+# Restart the postgres service:
+
+sudo systemctl restart postgresql
+
+# Then check the status:
+
+sudo systemctl status postgresql
 
 ## 3. Server
 
