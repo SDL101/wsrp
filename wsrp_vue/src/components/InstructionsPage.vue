@@ -46,20 +46,57 @@
         <span>{{ open.csrf ? '▼' : '►' }}</span> 3. Cross-Site Request Forgery (CSRF)
       </button>
       <div v-if="open.csrf" class="section-content">
-        <p><strong>What is it?</strong> CSRF tricks a logged-in user into submitting unwanted actions on their behalf.</p>
-        <ol>
-          <li>Toggle <strong>CSRF</strong> to <span style="color: red;">Vulnerable</span> in the navbar.</li>
-          <li>Log in as a user and go to a form that performs an action (like transferring money).</li>
-          <li>Open your browser's developer console.</li>
-          <li>Paste and run a fetch request (see below) to simulate a CSRF attack:</li>
-        </ol>
-        <pre><code>fetch(`${import.meta.env.VITE_API_URL}/api/csrf_vuln/transfer`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ from_account: 'attacker', to_account: 'victim', amount: 100 })
-});</code></pre>
-        <p>If the app is vulnerable, the transfer will succeed without proper authorization.</p>
-        <p><strong>Why is this dangerous?</strong> Attackers can trick users into transferring money or changing account details without their consent.</p>
+        <p><strong>What is it?</strong> Cross-Site Request Forgery (CSRF) is an attack that tricks a logged-in user’s browser into submitting unwanted actions on another site — for example, transferring money without their knowledge.</p>
+
+        <p><strong>How does it work?</strong> Suppose a user is logged into a banking app. An attacker can craft a malicious request (using an image, iframe, or hidden form) that automatically submits a transfer request on behalf of the user. If the banking site doesn’t verify the source of the request or require a CSRF token, the action will go through silently.</p>
+
+        <p><strong>Important note:</strong> This demo does not fully simulate a CSRF attack because we don’t spin up a separate malicious site or manage real user sessions. Instead, the app demonstrates the difference between a vulnerable and secure implementation through two different API endpoints used by the money transfer feature.</p>
+
+        <p>When the <strong>CSRF toggle</strong> is set to <span style="color: red; font-weight: bold;">Vulnerable</span>, the frontend calls an insecure endpoint that does <em>not</em> verify the source of the request. When it’s set to <span style="color: green; font-weight: bold;">Secure</span>, the app uses a fortified version of the transfer API.</p>
+
+        <details>
+          <summary><strong>View code for vulnerable and secure endpoints</strong></summary>
+          <pre><code># Vulnerable endpoint (no auth, no CSRF check)
+@app.route('/api/csrf_vuln/transfer', methods=['POST'])
+@csrf.exempt
+def transfer_money():
+    ...
+
+# Secure endpoint (JWT + CSRF token validation)
+from flask_wtf.csrf import CSRFProtect, validate_csrf
+from wtforms.validators import ValidationError
+
+@app.route('/api/transfer', methods=['POST'])
+@jwt_required()
+def secure_transfer():
+    # --- CSRF Token Validation ---
+    csrf_token = request.headers.get('X-CSRFToken')
+    try:
+        validate_csrf(csrf_token)
+    except ValidationError:
+        return jsonify({"message": "Missing or invalid CSRF token", "status_code": 403}), 403
+
+    # ... continue with transfer logic
+          </code></pre>
+        </details>
+
+        <p><strong>How is it protected?</strong> The secure version includes:</p>
+        <ul>
+          <li><strong>JWT Authentication</strong>: Requires a valid login token with every request.</li>
+          <li><strong>CSRF Token Support</strong>: Validates that the request originated from a trusted source and not an external page.</li>
+        </ul>
+
+        <p><strong>Why is this dangerous?</strong> Without CSRF protection, attackers can make high-impact actions — like transferring funds or changing passwords — by embedding requests in seemingly innocent sites. Users may never know the action happened.</p>
+
+        <p><strong>Best practices for CSRF prevention include:</strong></p>
+        <ul>
+          <li>Embedding a unique CSRF token in forms</li>
+          <li>Using the <code>SameSite</code> cookie attribute</li>
+          <li>Checking <code>Origin</code> or <code>Referer</code> headers</li>
+          <li>Enforcing authentication on all sensitive endpoints</li>
+        </ul>
+
+        <p>This example simplifies the scenario, but demonstrates a critical point: <strong>web apps must verify the origin of state-changing requests to prevent CSRF attacks.</strong></p>
       </div>
     </section>
 
