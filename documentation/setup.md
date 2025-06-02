@@ -93,42 +93,58 @@ These are the steps to install and set up postgresql database in linux environme
 
 Install postgresql
 
-```sudo apt install postgresql```
+```bash
+sudo apt install postgresql
+```
 
 Open postgresql as the "postgres" user: 
 
-```sudo -u postgres psql ```
+```bash
+sudo -u postgres psql
+```
 
 You should now have a terminal with a prompt that looks like:
 
-```postgres=#```
+```bash
+postgres=#
+```
 
 Create the database:
 
-```CREATE DATABASE banking_db_v0;```
+```bash
+CREATE DATABASE banking_db_v0;
+```
 
 Now, create a user with a password. This username and password will be the one to include later in the .env file 
 
-```create user server_user with encrypted password 'server_pass';```
+```bash
+create user server_user with encrypted password 'server_pass';
+```
 
 Now grant privileges to that user: 
 
-```
+```bash
 grant all privileges on database banking_db_v0 to server_user;
 exit;
 ```
 
 Now, navigate to the directory that has the file "database_setup_postgres.sql". Enter the following:
 
-```psql -h 127.0.0.1 -d banking_db_v0 -U postgres -p 5432 -f database_setup_postgres.sql```
+```bash
+psql -h 127.0.0.1 -d banking_db_v0 -U postgres -p 5432 -f database_setup_postgres.sql
+```
 
 Restart the postgres service:
 
-```sudo systemctl restart postgresql```
+```bash
+sudo systemctl restart postgresql
+```
 
 Then check the status:
 
-```sudo systemctl status postgresql```
+```bash
+sudo systemctl status postgresql
+```
 
 ## 3. Server
 
@@ -136,13 +152,13 @@ Navigate to the server directory with `cd server`.
 
 Create a python virtual environment, then activate it:
 
-```
+```bash
 python3 -m venv server_env
 source server_env/bin/activate
 ```
 Install the required packagegs and then run the app:
 
-```
+```bash
 pip install -r requirements.txt
 flask --app server.py run
 ```
@@ -155,23 +171,33 @@ Navigate to the `wsrp_vue` directory.
 
 Vue.js runs on Node. We will use Node Version Manager (`nvm`) to install Node. 
 
-```curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash```
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+```
 
 Verify version:
 
-```nvm --version```
+```bash
+nvm --version
+```
 
 Should show the version specified in the `curl` command above. Now install Node:
 
-```nvm install node```
+```bash
+nvm install node
+```
 
 The latest version will be installed. Double check that you are in the `wsrp_vue` directory then install dependencies:
 
-```npm install```
+```bash
+npm install
+```
 
 Run the front end server:
 
-```npm run dev```
+```bash
+npm run dev
+```
 
 You should now be able to access the application at the URL printed in the terminal. 
 
