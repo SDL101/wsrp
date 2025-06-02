@@ -91,43 +91,43 @@ cd wsrp
 
 These are the steps to install and set up postgresql database in linux environment
 
-# install postgresql
+Install postgresql
 
 `sudo apt install postgresql`
 
-# open postgresql as the "postgres" user: 
+Open postgresql as the "postgres" user: 
 
-`sudo -u postgres psql`
+`sudo -u postgres psql `
 
-# You should now have a terminal with a prompt that looks like:
+You should now have a terminal with a prompt that looks like:
 
 `postgres=#`
 
-# Create the database:
+Create the database:
 
 `CREATE DATABASE banking_db_v0;`
 
-# Now, create a user with a password. This username and password will be the one to include later in the .env file 
+Now, create a user with a password. This username and password will be the one to include later in the .env file 
 
 `create user server_user with encrypted password 'server_pass';`
 
-# Now grant privileges to that user: 
+Now grant privileges to that user: 
 
 `grant all privileges on database banking_db_v0 to server_user;`
 
 `exit;`
 
-# Now, navigate to the directory that has the file "database_setup_postgres.sql". Enter the following:
+Now, navigate to the directory that has the file "database_setup_postgres.sql". Enter the following:
 
-psql -h 127.0.0.1 -d banking_db_v0 -U postgres -p 5432 -f database_setup_postgres.sql
+`psql -h 127.0.0.1 -d banking_db_v0 -U postgres -p 5432 -f database_setup_postgres.sql`
 
-# Restart the postgres service:
+Restart the postgres service:
 
-sudo systemctl restart postgresql
+`sudo systemctl restart postgresql`
 
-# Then check the status:
+Then check the status:
 
-sudo systemctl status postgresql
+`sudo systemctl status postgresql`
 
 ## 3. Server
 
