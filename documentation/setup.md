@@ -33,6 +33,19 @@ There are four main steps to set up this project in order to interact with it:
 
 These steps should be completed in order. 
 
+## Logging in
+
+Here are user login credentials to use to test different users, "rwilson" is an EMPLOYEE, and "jsmith" is a CUSTOMER.
+
+```bash
+user_name: rwilson
+passowrd: password123
+
+user_name: jsmith
+password: easierpass
+```
+
+
 ## 1. Virtual Environment
 
 ### Install VirtualBox
